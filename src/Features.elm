@@ -54,6 +54,7 @@ generateFeaturesFromString fullSrc =
     List.range 0 3
         |> List.foldl helper (Just ( fullSrc, [] ))
         |> Maybe.map Tuple.second
+        -- Currently leaves 7 chars left to consume
 
 
 consumeFeatureFromString : Int -> String -> Maybe ( Feature, String )
@@ -72,8 +73,11 @@ consumeFeatureFromString featureId src =
                 |> Maybe.map (Tuple.mapFirst Mouth)
 
         3 ->
-            consumeHair src
+            src
+                |> String.reverse
+                |> consumeHair
                 |> Maybe.map (Tuple.mapFirst Hair)
+                |> Maybe.map (Tuple.mapSecond String.reverse)
 
         _ ->
             Nothing
