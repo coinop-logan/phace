@@ -16,18 +16,22 @@ type Feature
     = FaceColor Color
     | Eye EyeData
     | Mouth MouthData
+    | Hair HairData
 
 
 
--- | Hair HairData
 -- | Cheek CheekData
 -- | Shirt ShirtData
 
 
-generatePhaceHalfFromString : String -> Maybe (List (Svg ms))
-generatePhaceHalfFromString fullSrc =
+generatePhaceFromString : String -> Maybe (List (Svg ms))
+generatePhaceFromString fullSrc =
     generateFeaturesFromString fullSrc
-        |> Maybe.map (List.map renderFeature)
+        |> Maybe.map
+            (List.map renderFeature
+                >> List.concat
+                >> flipVertical
+            )
 
 
 generateFeaturesFromString : String -> Maybe (List Feature)
@@ -47,7 +51,7 @@ generateFeaturesFromString fullSrc =
                                 )
                     )
     in
-    List.range 0 2
+    List.range 0 3
         |> List.foldl helper (Just ( fullSrc, [] ))
         |> Maybe.map Tuple.second
 
@@ -67,21 +71,28 @@ consumeFeatureFromString featureId src =
             consumeMouth src
                 |> Maybe.map (Tuple.mapFirst Mouth)
 
+        3 ->
+            consumeHair src
+                |> Maybe.map (Tuple.mapFirst Hair)
+
         _ ->
             Nothing
 
 
-renderFeature : Feature -> Svg msg
+renderFeature : Feature -> List (Svg msg)
 renderFeature feature =
     case feature of
         FaceColor color ->
             renderFaceColor color
 
-        Eye eyeData ->
-            renderEye eyeData
+        Eye eye ->
+            renderEyes eye
 
-        Mouth mouthData ->
-            renderMouth mouthData
+        Mouth mouth ->
+            renderMouth mouth
+
+        Hair hair ->
+            renderHair hair
 
 
 consumeColor : String -> Maybe ( Color, String )
@@ -101,16 +112,18 @@ consumeColor src =
             )
 
 
-renderFaceColor : Color -> Svg msg
+renderFaceColor : Color -> List (Svg msg)
 renderFaceColor color =
-    rect
+    [ rect
         [ fillColor color
         , SvgA.stroke "none"
         , SvgA.width "200"
         , SvgA.height "200"
         , SvgA.y "-100"
+        , SvgA.x "-100"
         ]
         []
+    ]
 
 
 type alias EyeData =
@@ -150,16 +163,18 @@ makeEye color srcPoints =
         points
 
 
-renderEye : EyeData -> Svg msg
-renderEye eye =
-    polygon
-        [ fillColor eye.color
-        , strokeColor eye.color
-        , SvgA.strokeWidth "6"
-        , SvgA.strokeLinejoin "round"
-        , points eye.points
+renderEyes : EyeData -> List (Svg msg)
+renderEyes eye =
+    mirrorHorizontal
+        [ polygon
+            [ fillColor eye.color
+            , strokeColor eye.color
+            , SvgA.strokeWidth "6"
+            , SvgA.strokeLinejoin "round"
+            , points eye.points
+            ]
+            []
         ]
-        []
 
 
 type alias MouthData =
@@ -210,9 +225,9 @@ makeMouth color srcPoints =
         (Tuple.second bcPoints)
 
 
-renderMouth : MouthData -> Svg msg
+renderMouth : MouthData -> List (Svg msg)
 renderMouth mouth =
-    path
+    [ path
         [ fillColor mouth.color
         , strokeColor mouth.color
         , SvgA.strokeWidth "6"
@@ -223,13 +238,107 @@ renderMouth mouth =
               , negateX mouth.bcPoint1
               , negateX mouth.startPoint
               )
-            , (negateX mouth.bcPoint2
+            , ( negateX mouth.bcPoint2
               , mouth.bcPoint2
               , mouth.startPoint
               )
             ]
         ]
         []
+    ]
+
+
+type alias HairData =
+    { color : Color
+    , points : List Point
+    , spikiness : Float
+    }
+
+
+consumeHair : String -> Maybe ( HairData, String )
+consumeHair src =
+    src
+        |> consumeColor
+        |> Maybe.andThen
+            (\( color, src1 ) ->
+                consumePoints 5 src1
+                    |> Maybe.andThen
+                        (\( srcPoints, src2 ) ->
+                            consumeFloat src2
+                                |> Maybe.map
+                                    (\( spikiness, remaining ) ->
+                                        ( makeHair color srcPoints spikiness
+                                        , remaining
+                                        )
+                                    )
+                        )
+            )
+
+
+makeHair : Color -> List Point -> Float -> HairData
+makeHair color srcPoints spikiness =
+    HairData
+        color
+        (makeHairPoints srcPoints)
+        spikiness
+
+
+makeHairPoints : List Point -> List Point
+makeHairPoints srcPoints =
+    srcPoints
+        |> List.sortBy getX
+        |> List.indexedMap
+            (\id srcPoint ->
+                let
+                    boundingRect =
+                        if id == 0 || id == 4 then
+                            ( ( -150, -20 ), ( 150, 120 ) )
+
+                        else
+                            ( ( -150, 20 ), ( 150, 120 ) )
+                in
+                scalePointToRect boundingRect srcPoint
+            )
+
+
+renderHair : HairData -> List (Svg msg)
+renderHair hair =
+    let
+        hairlineTermPoints =
+            ( List.Extra.getAt 0 hair.points
+            , List.Extra.getAt 4 hair.points
+            )
+                |> extractTuple2Maybe
+                |> squashMaybe ( ( 0, 0 ), ( 0, 0 ) )
+                |> (\( hsStart, hsEnd ) ->
+                        ( ( -100, getY hsStart ), ( 100, getY hsEnd ) )
+                   )
+
+        hairPolygonPoints =
+            [ ( -100, 100 )
+            , Tuple.first hairlineTermPoints
+            ]
+                ++ hair.points
+                ++ [ Tuple.second hairlineTermPoints
+                   , ( 100, 100 )
+                   ]
+    in
+    [ polygon
+        [ fillColor hair.color
+        , SvgA.stroke "none"
+        , points hairPolygonPoints
+        ]
+        []
+    ]
+
+
+consumeFloat : String -> Maybe ( Float, String )
+consumeFloat fullSrc =
+    String.toList fullSrc
+        |> List.head
+        |> Maybe.map hexCharToFloat
+        |> Maybe.map
+            (\f -> ( f, String.dropLeft 1 fullSrc ))
 
 
 consumePoints : Int -> String -> Maybe ( List Point, String )
@@ -306,3 +415,20 @@ getY =
 
 negateX =
     Tuple.mapFirst negate
+
+
+mirrorHorizontal : List (Svg msg) -> List (Svg msg)
+mirrorHorizontal svgs =
+    [ g [] svgs
+    , g
+        [ SvgA.transform "scale(-1,1)" ]
+        svgs
+    ]
+
+
+flipVertical : List (Svg msg) -> List (Svg msg)
+flipVertical svgs =
+    [ g
+        [ SvgA.transform "scale(1,-1)" ]
+        svgs
+    ]

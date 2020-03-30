@@ -14,6 +14,16 @@ extractTuple3Maybe ( ma, mb, mc ) =
             Nothing
 
 
+extractTuple2Maybe : ( Maybe a, Maybe b ) -> Maybe ( a, b )
+extractTuple2Maybe ( ma, mb ) =
+    case ( ma, mb ) of
+        ( Just a, Just b ) ->
+            Just ( a, b )
+
+        _ ->
+            Nothing
+
+
 tuple3ToList : ( a, a, a ) -> List a
 tuple3ToList ( a, b, c ) =
     [ a, b, c ]
