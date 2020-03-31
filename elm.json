@@ -3,7 +3,7 @@
     "name": "coinop-logan/phace",
     "summary": "Generate phaces: face-like identicons based on crypto addresses.",
     "license": "MIT",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "exposed-modules": [
         "Phace"
     ],
@@ -16,6 +16,7 @@
         "elm/svg": "1.0.1 <= v < 2.0.0",
         "elm-community/list-extra": "8.2.3 <= v < 9.0.0",
         "elm-community/maybe-extra": "5.2.0 <= v < 6.0.0",
+        "elm-community/result-extra": "2.4.0 <= v < 3.0.0",
         "rtfeldman/elm-hex": "1.0.0 <= v < 2.0.0"
     },
     "test-dependencies": {}

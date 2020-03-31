@@ -37,6 +37,7 @@ generatePhaceFromString fullSrc =
 generateFeaturesFromString : String -> Maybe (List Feature)
 generateFeaturesFromString fullSrc =
     let
+        --_ = Debug.log "src" fullSrc
         helper : Int -> Maybe ( String, List Feature ) -> Maybe ( String, List Feature )
         helper featureId maybeAcc =
             maybeAcc
@@ -53,8 +54,12 @@ generateFeaturesFromString fullSrc =
     in
     List.range 0 3
         |> List.foldl helper (Just ( fullSrc, [] ))
+        -- |> Debug.log "remaining"
         |> Maybe.map Tuple.second
-        -- Currently leaves 7 chars left to consume
+
+
+
+-- Currently leaves 8 chars left to consume
 
 
 consumeFeatureFromString : Int -> String -> Maybe ( Feature, String )
@@ -255,7 +260,6 @@ renderMouth mouth =
 type alias HairData =
     { color : Color
     , points : List Point
-    , spikiness : Float
     }
 
 
@@ -266,25 +270,20 @@ consumeHair src =
         |> Maybe.andThen
             (\( color, src1 ) ->
                 consumePoints 5 src1
-                    |> Maybe.andThen
-                        (\( srcPoints, src2 ) ->
-                            consumeFloat src2
-                                |> Maybe.map
-                                    (\( spikiness, remaining ) ->
-                                        ( makeHair color srcPoints spikiness
-                                        , remaining
-                                        )
-                                    )
+                    |> Maybe.map
+                        (\( srcPoints, remaining ) ->
+                            ( makeHair color srcPoints
+                            , remaining
+                            )
                         )
             )
 
 
-makeHair : Color -> List Point -> Float -> HairData
-makeHair color srcPoints spikiness =
+makeHair : Color -> List Point -> HairData
+makeHair color srcPoints =
     HairData
         color
         (makeHairPoints srcPoints)
-        spikiness
 
 
 makeHairPoints : List Point -> List Point
