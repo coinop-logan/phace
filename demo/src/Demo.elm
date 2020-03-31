@@ -73,12 +73,5 @@ view =
 viewPhaceForAddress : Address -> Element ()
 viewPhaceForAddress address =
     Element.el [ Element.padding 10 ] <|
-        (Phace.fromEthAddress address
-            |> Maybe.map
-                (\phace ->
-                    Element.html <|
-                        phace
-                )
-            |> Maybe.withDefault
-                (Element.text "Error!")
-        )
+        Element.html <|
+            Phace.fromEthAddress address
