@@ -3,7 +3,7 @@
     "name": "coinop-logan/phace",
     "summary": "Generate phaces: face-like identicons based on crypto addresses.",
     "license": "MIT",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "exposed-modules": [
         "Phace"
     ],
