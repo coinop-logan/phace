@@ -218,13 +218,13 @@ makeMouth color srcPoints =
                 |> squashMaybe (Tuple3.triple ( 0, 0 ))
 
         startPoint =
-            startPointSrc |> scalePointToRect ( ( 10, -10 ), ( 50, -50 ) )
+            startPointSrc |> scalePointToRect ( ( 10, -30 ), ( 70, -80 ) )
 
         bcPoints =
             ( bcPoint1Src, bcPoint2Src )
                 |> mapTuple2
                     (scalePointToRect
-                        (pointToBoundingRect ( 20, 20 ) startPoint)
+                        (pointToBoundingRect ( 20, 40 ) startPoint)
                     )
     in
     MouthData
