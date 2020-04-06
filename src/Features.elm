@@ -164,7 +164,7 @@ makeEye color srcPoints =
             srcPoints
                 |> List.map
                     (scalePointToRect
-                        ( ( 10, 10 ), ( 60, 50 ) )
+                        ( ( 25, 10 ), ( 60, 50 ) )
                     )
     in
     EyeData
