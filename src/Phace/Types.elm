@@ -1,4 +1,4 @@
-module Types exposing (..)
+module Phace.Types exposing (..)
 
 
 type alias Point =

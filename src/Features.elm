@@ -9,7 +9,7 @@ import SvgHelpers exposing (..)
 import Tuple2
 import Tuple3
 import TupleHelpers exposing (..)
-import Types exposing (..)
+import Phace.Types exposing (..)
 
 
 type Feature

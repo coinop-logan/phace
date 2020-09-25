@@ -4,7 +4,7 @@ import Svg exposing (..)
 import Svg.Attributes as SvgA
 import Tuple2
 import TupleHelpers exposing (..)
-import Types exposing (..)
+import Phace.Types exposing (..)
 
 
 points : List Point -> Attribute msg

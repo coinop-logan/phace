@@ -1,11 +1,14 @@
-module Phace exposing (fromEthAddress, fromHexString, Error(..), errorToString)
+module Phace exposing
+    ( fromEthAddress, fromHexString, Error(..), errorToString
+    , faceColorFromAddress
+    )
 
 {-|
 
 
 # Making Phaces
 
-@docs fromEthAddress, fromHexString, Error, errorToString
+@docs fromEthAddress, fromHexString, Error, errorToString, faceColorFromAddress
 
 -}
 
@@ -18,6 +21,7 @@ import Maybe.Extra
 import Result.Extra
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
+import SvgHelpers
 
 
 {-| Phace generation will fail if the provided source is too short or not composed of hex characters.
@@ -93,3 +97,25 @@ addressToRelevantString : Address -> String
 addressToRelevantString =
     Eth.Utils.addressToString
         >> String.dropLeft 2
+
+
+{-| Just get the primary color of the Phace. Can be used to make a unique "character color" that matches the Phace.
+-}
+faceColorFromAddress : Address -> Result Error ( Float, Float, Float )
+faceColorFromAddress address =
+    let
+        maybeFeature =
+            Features.consumeFeatureFromString 0
+                (addressToRelevantString address)
+                |> Maybe.map Tuple.first
+    in
+    case maybeFeature of
+        Just (Features.FaceColor ( r, g, b )) ->
+            Ok <|
+                ( Features.hexCharToFloat r
+                , Features.hexCharToFloat g
+                , Features.hexCharToFloat b
+                )
+
+        _ ->
+            Err SourceTooSmall
