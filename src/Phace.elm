@@ -1,7 +1,4 @@
-module Phace exposing
-    ( fromEthAddress, fromHexString, Error(..), errorToString
-    , faceColorFromAddress
-    )
+module Phace exposing (fromEthAddress, fromHexString, Error(..), errorToString, faceColorFromAddress)
 
 {-|
 
@@ -49,11 +46,14 @@ CAUTION: If you supply a malformed Eth address (maybe you were mucking about wit
 this will produce a plain div with an error message in it.
 
 -}
-fromEthAddress : Address -> Html msg
-fromEthAddress address =
-    address
-        |> addressToRelevantString
-        |> fromHexString
+fromEthAddress : Address -> Int -> Int -> Html msg
+fromEthAddress address width height =
+    fromHexString
+        (address
+            |> addressToRelevantString
+        )
+        width
+        height
         |> Result.Extra.extract
             (errorToString
                 >> (\s ->
@@ -68,8 +68,8 @@ fromEthAddress address =
 
 {-| Generate a phace from a hexadecimal `String`. Make sure to remove any "0x" from the source first.
 -}
-fromHexString : String -> Result Error (Html msg)
-fromHexString src =
+fromHexString : String -> Int -> Int -> Result Error (Html msg)
+fromHexString src phaceWidth phaceHeight =
     let
         stringIsAllHex =
             src
@@ -82,8 +82,8 @@ fromHexString src =
             |> Features.generatePhaceFromString
             |> Maybe.map
                 (svg
-                    [ width "100"
-                    , height "100"
+                    [ width <| "\"" ++ String.fromInt phaceWidth ++ "\""
+                    , height <| "\"" ++ String.fromInt phaceHeight ++ "\""
                     , viewBox "-100 -100 200 200"
                     ]
                 )
