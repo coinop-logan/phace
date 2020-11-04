@@ -42,6 +42,8 @@ errorToString e =
 
 {-| Generate a phace from an Ethereum `Address`. Uses 32 chraracters, leaving 6 characters near the middle unused.
 
+Specify svg width and height
+
 CAUTION: If you supply a malformed Eth address (maybe you were mucking about with `Eth.Utils.unsafeToAddress`?),
 this will produce a plain div with an error message in it.
 
@@ -67,6 +69,7 @@ fromEthAddress address width height =
 
 
 {-| Generate a phace from a hexadecimal `String`. Make sure to remove any "0x" from the source first.
+Specify svg width and height
 -}
 fromHexString : String -> Int -> Int -> Result Error (Html msg)
 fromHexString src phaceWidth phaceHeight =
