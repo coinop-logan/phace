@@ -42,7 +42,7 @@ errorToString e =
 
 {-| Generate a phace from an Ethereum `Address`. Uses 32 chraracters, leaving 6 characters near the middle unused.
 
-Specify svg width and height
+Specify svg width and height (Note that values other than 100x100 have only been minimally tested)
 
 CAUTION: If you supply a malformed Eth address (maybe you were mucking about with `Eth.Utils.unsafeToAddress`?),
 this will produce a plain div with an error message in it.
