@@ -85,8 +85,8 @@ fromHexString src phaceWidth phaceHeight =
             |> Features.generatePhaceFromString
             |> Maybe.map
                 (svg
-                    [ width <| "\"" ++ String.fromInt phaceWidth ++ "\""
-                    , height <| "\"" ++ String.fromInt phaceHeight ++ "\""
+                    [ width <| String.fromInt phaceWidth
+                    , height <| String.fromInt phaceHeight
                     , viewBox "-100 -100 200 200"
                     ]
                 )
